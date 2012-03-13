@@ -10,8 +10,7 @@
 (defpage "/notebook" []
 	(common/site-layout
 		[:h1 "Notebook"]
-		[:div#code
-			[:textarea {:id "expr"}]
-			[:input {:type "submit", :id "eval", :value "Eval", :name "Eval"}]]
-		[:div#results]
+		[:table {:id "notebook" :style "width: 100%;"}
+			[:tr {:class "active-code"}
+				[:td [:textarea]]]]
 		(javascript-tag "nota_bene_init();")))

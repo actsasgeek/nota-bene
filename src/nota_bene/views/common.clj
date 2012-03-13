@@ -14,6 +14,7 @@
 (defpartial site-layout [& content]
 	(html5
 		[:head
+            (include-css "/css/nota-bene.css")
 			(include-js "/js/jquery-1.4.2.min.js")
 			(include-js "/js/nota-bene.js")
 			[:title "Nota Bene"]]
