@@ -9,8 +9,8 @@
 
 (defpage "/notebook" []
 	(common/site-layout
-		[:h1 "Notebook"]
-		[:table {:id "notebook" :style "width: 100%;"}
-			[:tr {:class "active-code"}
-				[:td [:textarea]]]]
+		[:div {:id "toolbar"}]
+		[:div {:id "notebook"}
+			[:h1 "Notebook"]]
+		[:div {:class "clear"}]
 		(javascript-tag "nota_bene_init();")))

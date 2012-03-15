@@ -1,50 +1,178 @@
+var converter = new Markdown.Converter();
+
+var cell_number = 0;
+var selected_cell = null;
+
 function nota_bene_init() {
 	$(function() {
         console.log( "Initializing Nota Bene...");
-        $( ".active-code textarea").keydown( eval_listener);
+        initialize_toolbar();
 	});
 }
 
-function eval_listener( e) {
-    if ( e.shiftKey && e.keyCode == 13) {
-        eval();
-        e.preventDefault();
-    }
+function initialize_toolbar() {
+    var toolbar = $( '#toolbar');
+    toolbar.jScroll();
+    // new code cell button.
+    var button = $("<input type='button' name='{}' value='{}' title='Insert a new code cell.'/>");
+    toolbar.append( button);
+    button.click( function(e) {
+        create_code_cell();
+    });
+
+    // new code text cell button.
+    button = $("<input type='button' name='T' value='T' title='Insert a new text cell.'/>");
+    toolbar.append( button);
+    button.click( function(e) {
+        create_text_cell();
+    });
+
+    // new delete button.
+    button = $("<input type='button' name='X' value='X' title='Delete selected cell.'/>");
+    toolbar.append( button);
+    button.click( function() {
+        if (selected_cell != null) {
+            var result = confirm( "Delete the selected cell?");
+            if ( result) {
+                $( selected_cell.cell).remove();
+                selected_cell = null;
+            }
+        }
+    });
 }
 
-function eval() {
-    var expr = $( '.active-code textarea').val();
-    if ( expr != "") {
-        var data = eval_clojure( expr);
-        console.log( data);
-        if ( data.error) {
-            var html = html_escape( data.message);
-            add_results( html);
-        } else {
-            var html = html_escape( data.result);
-            console.log( html);
-            add_results( html);
-            add_code();
+function code_cell_html( id) {
+    var result = "<div id='cell-" + id + "' class='cell'>";
+    result += "<div class='cell-row'>";
+    result += "      <div class='in-prompt'><span>In:</span></div>";
+    result += "       <div class='in'>";
+    result += "           <textarea></textarea>";
+    result += "       </div>";
+    result += "   </div>";
+    result += "   <div class='cell-row'>";
+    result += "       <div class='blank'/><div class='blank'/>";
+    result += "   </div>";
+    result += "    <div class='cell-row'>";
+    result += "        <div class='out-prompt'></div>";
+    result += "        <div class='out'></div>";
+    result += "    </div>";
+    result += "</div>";
+    return result;
+}
+
+function text_cell_html( id) {
+    var result = "<div id='cell-" + id + "' class='text-cell-main'>";
+    result += "   <div class='text-cell'>";
+    result += "        <div class='text-editor' style='display: block;'>";
+    result += "           <textarea></textarea>";
+    result += "       </div>";
+    result += "       <div class='text-renderer' tabindex='-1' style='display: none;'>";
+    result += "           <span>Enter HTML/LaTeX here</span>";
+    result += "        </div>";
+    result += "   </div>";
+    result += "</div>";
+    return result;
+}
+
+function make_new_cell_id() {
+    cell_number ++;
+    return cell_number;
+}
+
+function make_cell_active( id, type, current_cell) {
+    if ( selected_cell != null) {
+        $( selected_cell.cell).removeClass( "active-cell");
+        if ( selected_cell.type == "code") {
+            $( selected_cell.cell).addClass( "inactive-cell");
         }
     }
+    selected_cell = { type: type, cell: current_cell};
+    $('#cell-' + id).removeClass( "inactive-cell").addClass( "active-cell");
 }
 
-function add_results( results) {
-    $( ".active-results").removeClass( "active-results").addClass( "inactive-results");
-    var last_row = $( '#notebook tr:last');
-    last_row.after( "<tr class='active-results'><td><div>" + results + "</div></td></tr>");
+function create_text_cell() {
+    var id = make_new_cell_id()
+
+    var cell = $( text_cell_html( id));
+    cell.click( function( e) {
+        edit_text_cell( id);
+        make_cell_active( id, "text", this);
+    });
+    $( '#notebook').append( cell);
+    var textarea = $( '#cell-' + id + ' textarea')[ 0];
+    console.log( textarea);
+    var editor = CodeMirror.fromTextArea( textarea, {
+        mode: "markdown",
+        lineWrapping: true,
+        onBlur: function (cm, e) {
+            save_text_cell( id);
+        }
+    });
+    textarea[ 'editor'] = editor;
+    make_cell_active( id, "text", this);
+    editor.focus();
 }
 
-function add_code() {
-    var old_editor = $( ".active-code textarea");
-    old_editor.keydown( null);
-    var row = $(".active-code");
-    row.removeClass( "active-code").addClass( "inactive-code");
-    var last_row = $( '#notebook tr:last');
-    last_row.after( "<tr class='active-code'><td><textarea></textarea></td></tr>");
-    var new_editor = $( ".active-code textarea");
-    new_editor.keydown( eval_listener);
-    new_editor.focus();
+function edit_text_cell( id) {
+    var textarea = $( '#cell-' + id + ' textarea')[ 0];
+    var editor = textarea[ 'editor'];
+    $('#cell-' + id + ' .text-renderer').attr( "style", "display: none;");
+    $('#cell-' + id + ' .text-editor').attr( "style", "display: block;");
+    editor.focus();
+}
+
+function save_text_cell( id) {
+    var textarea = $( '#cell-' + id + ' textarea')[ 0];
+    var editor = textarea[ 'editor'];
+    var html = editor.getValue();
+    if (html.replace(/^\s+|\s+$/g, '') === "") {
+        html = "Enter Markdown or LaTeX Math";
+    }
+    $('#cell-' + id).removeClass( "active-cell");
+    $('#cell-' + id + ' .text-editor').attr( "style", "display: none;");
+    $('#cell-' + id + ' .text-renderer').html( converter.makeHtml( html)).attr( "style", "display: block;");
+}
+
+function create_code_cell() {
+    var id = make_new_cell_id()
+
+    var cell = $( code_cell_html( id));
+    cell.click( function(e) {
+        make_cell_active( id, "code", this);
+    });
+    $( '#notebook').append( cell);
+    var textarea = $( "#cell-" + id + " textarea")[ 0];
+    var editor = CodeMirror.fromTextArea( textarea, {
+//        lineNumbers: true,
+        mode: "clojure",
+        theme: "neat",
+        matchBrackets: true,
+        indentUnit: 4,
+        extraKeys: {
+            "Shift-Enter": function(cm) {
+                evaluate_code( id);
+            }
+        }
+    });
+    textarea[ 'editor'] = editor;
+    return cell;
+}
+
+function evaluate_code( id) {
+    var textarea = $( "#cell-" + id + " textarea")[ 0];
+    var editor = textarea[ 'editor'];
+    var expr = editor.getValue();
+    if ( expr != "") {
+        var data = eval_clojure( expr);
+        var html = "";
+        if ( data.error) {
+            html = html_escape( data.message);
+        } else {
+            html = html_escape( data.result);
+        }
+        $( "#cell-" + id + " .out-prompt").html( "Out:");
+        $( "#cell-" + id + " .out").html( html);
+    }
 }
 
 function eval_clojure( code) {

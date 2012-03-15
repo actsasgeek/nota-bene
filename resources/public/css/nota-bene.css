@@ -1,3 +1,131 @@
-textarea {
-	width: 75%;
+body {
+	color: #114;
+	background: #fff;
+	font-size: 10pt;
+}
+
+h1 {
+	font-family: Helvetica, Arial, sans-serif;
+}
+
+.cell {
+	width: 100%;
+	font-family: Monaco, Courier, monospace;
+	font-size: 9pt;
+	display: table;
+	padding: 5px 10px 5px 1px;
+	margin: 5px 0px 5px 0px;
+	border: 1px solid #EAF1FB;
+	-moz-border-radius: 3px;
+	border-radius: 3px;	
+}
+
+.text-cell-main {
+	font-family: Helvetica, Arial, sans-serif;
+}
+
+.active-cell {
+	border: 2px solid #BAD0EF;
+	-moz-border-radius: 3px;
+	border-radius: 3px;		
+}
+
+.inactive-cell {
+	border: 1px solid #EAF1FB;
+	-moz-border-radius: 3px;
+	border-radius: 3px;	
+}
+
+.cell-row {
+	width: 100%;
+	display: table-row;
+	padding: 1px 1px 100px 1px;
+	margin: 5px 1px 100px 1px;
+}
+
+.in-prompt, .out-prompt {
+	display: table-cell;
+	width: 5%;
+	vertical-align: top;
+	padding: 0px 0px 5px 10px;
+}
+.in {
+	display: table-cell;
+	width: 95%;
+	padding: 0px 0px 5px 10px;
+}
+
+.blank {
+	display: table-cell;
+	padding: 0px 0px 5px 10px;
+}
+
+.out {
+	display: table-cell;
+	width: 95%;
+	padding: 0px 25px 5px 10px;
+	margin: 0px 25px 0px 0px;
+}
+
+.in textarea {
+	width: 99%;
+	font-family: Monaco, Courier, monospace;
+	border: none;
+}
+
+#wrapper {
+	margin: 0px 10px 25px 10px;
+}
+
+#notebook {
+	float: left;
+	width: 90%;
+}
+
+#toolbar {
+	float: left;
+	width: 32px;
+	height: 320px;
+	padding: 0% 2% 2%;
+	margin: 25px 10px 0px 10px;
+}
+
+/*
+#wrapper {
+	border: 1px solid black;
+	padding: 10px;
+}
+
+#notebook {
+	border: 1px solid black;
+	margin: 0px 10px 10px 100px;
+	padding: 10px;
+	float: left;
+	width: 80%;
+}
+
+#toolbar {
+	float: left;
+	width: 32px;
+	height: 320px;
+	padding: 0% 2% 2%;
+	margin-right: 4%;
+	margin-top: 10px;
+	border: 1px dotted #000;
+}
+*/
+
+.clear {
+	clear: both;
+}
+
+.CodeMirror {
+	font-size: 10pt;
+}
+
+.CodeMirror-scroll {
+	height: auto;
+	overflow-y: hidden;
+	overflow-x: auto;
+	width: 100%;
 }
