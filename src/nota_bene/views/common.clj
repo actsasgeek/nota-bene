@@ -17,6 +17,7 @@
       (include-css "/css/codemirror.css")
       (include-css "/css/neat.css")
       (include-css "/css/nota-bene.css")
+      (include-js "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML")  
 			(include-js "/js/jquery-1.7.1.min.js")
       (include-js "/js/jquery.jscroll.min.js")
       (include-js "/js/codemirror.js")

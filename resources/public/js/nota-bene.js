@@ -7,6 +7,7 @@ function nota_bene_init() {
 	$(function() {
         console.log( "Initializing Nota Bene...");
         initialize_toolbar();
+        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
 	});
 }
 
@@ -131,6 +132,7 @@ function save_text_cell( id) {
     $('#cell-' + id).removeClass( "active-cell");
     $('#cell-' + id + ' .text-editor').attr( "style", "display: none;");
     $('#cell-' + id + ' .text-renderer').html( converter.makeHtml( html)).attr( "style", "display: block;");
+    MathJax.Hub.Queue([ "Typeset",MathJax.Hub]);
 }
 
 function create_code_cell() {
