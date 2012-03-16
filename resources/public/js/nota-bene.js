@@ -13,25 +13,29 @@ function nota_bene_init() {
 
 function initialize_toolbar() {
     var toolbar = $( '#toolbar');
-    toolbar.jScroll();
+//    toolbar.jScroll();
     // new code cell button.
-    var button = $("<input type='button' name='{}' value='{}' title='Insert a new code cell.'/>");
+//    var button = $("<input type='button' name='{}' value='{}' title='Insert a new code cell.' onLoad=\"AddIcon( '/img/glyphish/20-gear2.png')\"/>");
+
+    var button = $("<a href='#' title='Add new code cell' class='button icon add'>Add code</a><br />");
     toolbar.append( button);
     button.click( function(e) {
+        e.preventDefault();
         create_code_cell();
     });
-
     // new code text cell button.
-    button = $("<input type='button' name='T' value='T' title='Insert a new text cell.'/>");
+    button = $("<a href='#' title='Add new annotation cell' class='button icon add'>Add annotation</a><br />");
     toolbar.append( button);
     button.click( function(e) {
+        e.preventDefault();
         create_text_cell();
     });
 
     // new delete button.
-    button = $("<input type='button' name='X' value='X' title='Delete selected cell.'/>");
+    button = $("<a href='#' title='Delete selected cell' class='button danger icon trash'>Delete selected cell</a><br />");
     toolbar.append( button);
-    button.click( function() {
+    button.click( function(e) {
+        e.preventDefault();
         if (selected_cell != null) {
             var result = confirm( "Delete the selected cell?");
             if ( result) {
@@ -40,6 +44,8 @@ function initialize_toolbar() {
             }
         }
     });
+
+    toolbar.append($( "<div style='text-align: center; width: 100%; padding-top: 25px;'><table width='100%'><tr><td><img src='img/clojure.png'/><br /><img src='img/duke.jpeg'/></td><td><img src='img/lisplogo_warning.png'/></td></tr></table></div>"));
 }
 
 function code_cell_html( id) {

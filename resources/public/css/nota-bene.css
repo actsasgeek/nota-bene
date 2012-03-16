@@ -9,10 +9,10 @@ h1 {
 }
 
 .cell {
+	display: table;
 	width: 100%;
 	font-family: Monaco, Courier, monospace;
 	font-size: 9pt;
-	display: table;
 	padding: 5px 10px 5px 1px;
 	margin: 5px 0px 5px 0px;
 	border: 1px solid #EAF1FB;
@@ -47,7 +47,7 @@ h1 {
 	display: table-cell;
 	width: 5%;
 	vertical-align: top;
-	padding: 0px 0px 5px 10px;
+	padding: 5px 0px 5px 10px;
 }
 .in {
 	display: table-cell;
@@ -63,7 +63,7 @@ h1 {
 .out {
 	display: table-cell;
 	width: 95%;
-	padding: 0px 25px 5px 10px;
+	padding: 5px 25px 5px 15px;
 	margin: 0px 25px 0px 0px;
 }
 
@@ -73,23 +73,28 @@ h1 {
 	border: none;
 }
 
+.button {
+	width: 100%;
+}
+
+/*
 #wrapper {
-	margin: 0px 10px 25px 10px;
+	margin: 100px 10px 10px 10px;
 }
 
 #notebook {
+	border: 1px solid red;
 	float: left;
-	width: 90%;
+	width: 80%;
 }
 
 #toolbar {
+	border: 1px solid black;
 	float: left;
-	width: 32px;
-	height: 320px;
-	padding: 0% 2% 2%;
+	width: 15%;
 	margin: 25px 10px 0px 10px;
 }
-
+*/
 /*
 #wrapper {
 	border: 1px solid black;
@@ -113,11 +118,11 @@ h1 {
 	margin-top: 10px;
 	border: 1px dotted #000;
 }
-*/
 
 .clear {
 	clear: both;
 }
+*/
 
 .CodeMirror {
 	font-size: 10pt;

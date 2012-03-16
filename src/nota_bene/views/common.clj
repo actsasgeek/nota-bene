@@ -15,6 +15,8 @@
 	(html5
 		[:head
       (include-css "/css/codemirror.css")
+      (include-css "/css/gh-buttons.css")
+      (include-css "/css/screen.css")
       (include-css "/css/neat.css")
       (include-css "/css/nota-bene.css")
       (include-js "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML")  
@@ -27,6 +29,5 @@
       (include-js "/js/markdown.converter.js")
 			(include-js "/js/nota-bene.js")
 			[:title "Nota Bene"]]
-		[:body
-			[:div#wrapper
-				content]]))
+		[:body {:class "leftmenu"}
+				content]))

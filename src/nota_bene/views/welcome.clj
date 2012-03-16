@@ -9,8 +9,19 @@
 
 (defpage "/notebook" []
 	(common/site-layout
+		[:div {:class "header"} [:h1 "Nota Bene"]]
+		[:div {:class "colmask"}
+			[:div {:class "colleft"}
+				[:div {:class "col1" :id "notebook"}]
+				[:div {:class "col2" :id "toolbar"}]]]
+		(javascript-tag "nota_bene_init();")))
+
+(comment
+(defpage "/notebook" []
+	(common/site-layout
 		[:div {:id "toolbar"}]
 		[:div {:id "notebook"}
 			[:h1 "Notebook"]]
 		[:div {:class "clear"}]
 		(javascript-tag "nota_bene_init();")))
+)
