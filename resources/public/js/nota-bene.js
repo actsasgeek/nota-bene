@@ -1,30 +1,94 @@
 var converter = new Markdown.Converter();
 
-var cell_number = 0;
+var current_workbook = null;
 var selected_cell = null;
+var workbooks = 0;
 
 function nota_bene_init() {
 	$(function() {
         console.log( "Initializing Nota Bene...");
         initialize_toolbar();
         MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+
+        list_workbooks();
 	});
+}
+
+function list_workbooks() {
+    var workbook = $( '#workbook');
+    workbook.empty();
+    current_workbook = null; // TODO: if current_workbook is about to be overwritten, there should be a warning if it is dirty.
+    var workbooks = fetch_workbooks_list();
+    var ul = $("<ul></ul>");
+    workbook.append( ul);
+    for ( var i = 0; i < workbooks.length; i ++) {
+        var link = $("<a class='workbook' href='#'>" + workbooks[ i][ 'name'] + "</a>");
+        var id = workbooks[ i][ "id"];
+        link.click( function(e) {
+            e.preventDefault();
+            load_workbook( id);
+        });
+        ul.append( link);
+    }    
+}
+
+function new_workbook() {
+    clear_workbook();
+    current_workbook = create_new_workbook();  
+}
+
+function create_new_workbook() {
+    workbooks ++;
+    result = {};
+    result[ 'cell_number'] = 0;
+    result[ 'name'] = "Workbook" + workbooks;
+    return result;
 }
 
 function initialize_toolbar() {
     var toolbar = $( '#toolbar');
-//    toolbar.jScroll();
-    // new code cell button.
-//    var button = $("<input type='button' name='{}' value='{}' title='Insert a new code cell.' onLoad=\"AddIcon( '/img/glyphish/20-gear2.png')\"/>");
 
-    var button = $("<a href='#' title='Add new code cell' class='button icon add'>Add code</a><br />");
+    // new wookbook
+    var button = $("<a href='#' title='Create a new workbook' class='button icon add'>New workbook</a><br />");
+    toolbar.append( button);
+    button.click( function(e) {
+        e.preventDefault();
+        new_workbook();
+    });
+    
+    // save workbook button.
+    button = $("<a href='#' title='Save workbook' class='button icon arrowup'>Save workbook</a><br />");
+    toolbar.append( button);
+    button.click( function(e) {
+        e.preventDefault();
+        var result = save_current_workbook();
+        if ( result[ 'error']) {
+            console.log( result[ 'message']);
+        } else {
+            current_workbook[ 'id'] = result[ 'message'];
+        }
+    });
+
+    // save workbook button.
+    button = $("<a href='#' title='List workbooks' class='button icon arrowdown'>List workbooks</a><br />");
+    toolbar.append( button);
+    button.click( function(e) {
+        e.preventDefault();
+        list_workbooks();
+    });
+
+    toolbar.append( $( "<div style='width: 100%; height: 5px;'/>"));
+
+    // add new code cell.
+    var button = $("<a href='#' title='Add new code cell' class='button icon settings'>Add code</a><br />");
     toolbar.append( button);
     button.click( function(e) {
         e.preventDefault();
         create_code_cell();
     });
+    
     // new code text cell button.
-    button = $("<a href='#' title='Add new annotation cell' class='button icon add'>Add annotation</a><br />");
+    button = $("<a href='#' title='Add new annotation cell' class='button icon comment'>Add annotation</a><br />");
     toolbar.append( button);
     button.click( function(e) {
         e.preventDefault();
@@ -45,11 +109,30 @@ function initialize_toolbar() {
         }
     });
 
+    toolbar.append( $( "<div style='width: 100%; height: 5px;'/>"));
+
+    // clear output.
+    button = $("<a href='#' title='Clear output' class='button danger icon remove'>Clear output</a><br />");
+    toolbar.append( button);
+    button.click( function(e) {
+        e.preventDefault();
+        clear_output();
+    });
+
+    // execute workbook.
+    button = $("<a href='#' title='Execute workbook' class='button icon reload'>Execute workbook</a><br />");
+    toolbar.append( button);
+    button.click( function(e) {
+        e.preventDefault();
+        execute_workbook();
+    });
+
+    toolbar.append( $("<p style='font-family: Arial, Helvetica, sans-serif; font-size: 8pt;'>Shift-Enter executes code.</p>"));
     toolbar.append($( "<div style='text-align: center; width: 100%; padding-top: 25px;'><table width='100%'><tr><td><img src='img/clojure.png'/><br /><img src='img/duke.jpeg'/></td><td><img src='img/lisplogo_warning.png'/></td></tr></table></div>"));
 }
 
 function code_cell_html( id) {
-    var result = "<div id='cell-" + id + "' class='cell'>";
+    var result = "<div id='cell-" + id + "' class='cell code-cell'>";
     result += "<div class='cell-row'>";
     result += "      <div class='in-prompt'><span>In:</span></div>";
     result += "       <div class='in'>";
@@ -68,22 +151,22 @@ function code_cell_html( id) {
 }
 
 function text_cell_html( id) {
-    var result = "<div id='cell-" + id + "' class='text-cell-main'>";
-    result += "   <div class='text-cell'>";
+    var result = "<div id='cell-" + id + "' class='cell text-cell'>";
+//    result += "   <div class='text-cell'>";
     result += "        <div class='text-editor' style='display: block;'>";
     result += "           <textarea></textarea>";
     result += "       </div>";
     result += "       <div class='text-renderer' tabindex='-1' style='display: none;'>";
     result += "           <span>Enter HTML/LaTeX here</span>";
     result += "        </div>";
-    result += "   </div>";
+ //   result += "   </div>";
     result += "</div>";
     return result;
 }
 
-function make_new_cell_id() {
-    cell_number ++;
-    return cell_number;
+function make_new_cell_id( workbook) {
+    workbook[ 'cell_number'] += 1;
+    return workbook[ 'cell_number'];
 }
 
 function make_cell_active( id, type, current_cell) {
@@ -98,16 +181,15 @@ function make_cell_active( id, type, current_cell) {
 }
 
 function create_text_cell() {
-    var id = make_new_cell_id()
+    var id = make_new_cell_id( current_workbook)
 
     var cell = $( text_cell_html( id));
     cell.click( function( e) {
         edit_text_cell( id);
         make_cell_active( id, "text", this);
     });
-    $( '#notebook').append( cell);
+    $( '#workbook').append( cell);
     var textarea = $( '#cell-' + id + ' textarea')[ 0];
-    console.log( textarea);
     var editor = CodeMirror.fromTextArea( textarea, {
         mode: "markdown",
         lineWrapping: true,
@@ -118,6 +200,7 @@ function create_text_cell() {
     textarea[ 'editor'] = editor;
     make_cell_active( id, "text", this);
     editor.focus();
+    return cell;
 }
 
 function edit_text_cell( id) {
@@ -142,13 +225,13 @@ function save_text_cell( id) {
 }
 
 function create_code_cell() {
-    var id = make_new_cell_id()
+    var id = make_new_cell_id( current_workbook)
 
     var cell = $( code_cell_html( id));
     cell.click( function(e) {
         make_cell_active( id, "code", this);
     });
-    $( '#notebook').append( cell);
+    $( '#workbook').append( cell);
     var textarea = $( "#cell-" + id + " textarea")[ 0];
     var editor = CodeMirror.fromTextArea( textarea, {
 //        lineNumbers: true,
@@ -162,7 +245,11 @@ function create_code_cell() {
             }
         }
     });
+    editor[ 'execute_value'] = function() {
+        evaluate_code( id);
+    }
     textarea[ 'editor'] = editor;
+    editor.focus();
     return cell;
 }
 
@@ -200,4 +287,106 @@ function html_escape(val) {
     result = result.replace(/[>]/g, "&gt;");
     result = result.replace(/\n/g, "<br/>");
     return result;
+}
+
+function extract_editor_from_cell( cell) {
+    return $( "textarea", $( cell))[ 0][ 'editor'];
+}
+
+function save_current_workbook() {
+    var result = null;
+    $.ajax({
+        url: "save.json",
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify( serialize_workbook( current_workbook)),
+        async: false,
+        type: "POST",
+        success: function(res) { 
+            result = res;
+        }
+    });
+    return result;
+}
+
+function load_workbook( id) {
+    var result = null;
+    $.ajax({
+        url: "load.json/" + id,
+        async: false,
+        success: function(res) { 
+            result = res;
+        }
+    });
+    deserialize_workbook( result);
+}
+
+function fetch_workbooks_list() {
+    var result = null;
+    $.ajax({
+        url: "list.json",
+        async: false,
+        success: function(res) { 
+            result = res;
+        }
+    });
+    return result;    
+}
+
+// TODO: this needs to "reset" the REPL on the server side.
+function clear_output() {
+    var cells = $( ".cell");
+    for ( var i = 0; i < cells.length; i ++) {
+        if ( $(cells[ i]).hasClass( "code-cell")) {
+            $( ".out-prompt", cells[ i]).empty();
+            $( ".out", cells[ i]).empty();
+        }
+    }
+}
+
+function execute_workbook() {
+    var cells = $( ".code-cell");
+    for ( var i = 0; i < cells.length; i ++) {
+        var editor = extract_editor_from_cell( cells[ i]);
+
+        editor[ 'execute_value']();
+    }
+}
+
+function serialize_workbook( workbook) {
+    var content = [];
+    var cells = $( ".cell");
+    for ( var i = 0; i < cells.length; i ++) {
+        var serialized_cell = {};
+        serialized_cell[ 'type'] = ($(cells[ i]).hasClass( "code-cell")) ? "code" : "text";
+        serialized_cell[ 'content'] = extract_editor_from_cell( cells[ i]).getValue();
+        content.push( serialized_cell);
+    }
+    workbook[ 'content'] = content;
+    return workbook;
+}
+
+function clear_workbook() {
+    $( "#workbook").empty();
+}
+
+function deserialize_workbook( workbook) {
+    clear_workbook();
+    current_workbook = workbook;
+    workbook[ 'cell_number'] = 0;
+    var content = workbook[ 'content'];
+    for ( var i = 0; i < content.length; i ++) {
+        var cell = content[ i];
+        var cell_type = cell.type;
+        var cell_content = cell.content;
+        if ( cell_type == 'code') {
+            cell = create_code_cell();
+        } else {
+            cell = create_text_cell();
+        }
+        var editor = extract_editor_from_cell( cell);
+        editor.setValue( cell_content);
+        $( editor).blur();
+    }
+    return workbook;
 }

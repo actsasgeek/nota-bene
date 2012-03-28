@@ -8,15 +8,14 @@
      [:title "nota-bene"]
      (include-css "/css/reset.css")]
     [:body
-     [:div#wrapper
-      content]]))
+      content]))
 
 (defpartial site-layout [& content]
 	(html5
 		[:head
       (include-css "/css/codemirror.css")
       (include-css "/css/gh-buttons.css")
-      (include-css "/css/screen.css")
+      (include-css "/css/gui.css")
       (include-css "/css/neat.css")
       (include-css "/css/nota-bene.css")
       (include-js "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML")  
