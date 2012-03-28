@@ -1,0 +1,42 @@
+/* 
+This is the basic style sheet, 
+seen by all browsers. 
+*/ 
+body { 
+	background: #ffffff; 
+	margin: 0px; 
+	padding: 0px;
+	font-size: 9pt;
+} 
+
+p { 
+	width: 90%; 
+} 
+
+#toolbar p { 
+	width: 150px;
+} 
+
+#workbook { 
+	width: auto; 
+	position: absolute; 
+	top: 0px; 
+	left: 160px; 
+	z-index: 98; 
+	padding: 0px 20px 0px 20px;
+} 
+
+#toolbar { 
+	border: 1px dotted black;
+	z-index: 99; 
+	height: 100%; 
+	padding: 10px; 
+	width: 150px; 
+	position: absolute; 
+	left: 0px; 
+	top: 0px; 
+} 
+
+body>div#toolbar { 
+	position: fixed; 
+}
