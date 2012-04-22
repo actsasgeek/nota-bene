@@ -7,11 +7,12 @@ a la Mathematic or ipython. I've shamelessly reverse engineered from ipython's n
 www.tryclojure.org.
 
 As of version 0.1.0, you can create, save and load workbooks but there are a lot of basic features missing
-and there are quite a few advanced features I'd like to add.
+and there are quite a few advanced features I'd like to add. I'm afraid I'm not much of a JavaScript
+programmer so it's really a big hack.
 
 ## Missing Basic Features
 
-* naming workbooks. (right now these are automatically named as "Workbook0", "Workbook1")
+* naming workbooks. (right now these are automatically named as "Workbook0", "Workbook1") DONE!
 * downloading workbooks as .cljwb or .clj
 * uploading workbooks as .cljwb or .clj
 * automatic launch of webapp (clojure.java.browse?)
@@ -24,6 +25,10 @@ and there are quite a few advanced features I'd like to add.
 
 ### Internal
 * re-write client-side in ClojureScript (perhaps ClojureScript One is a model?)
+
+## Features I didn't I know I was missing
+
+* Increase/Decrease workbook font size DONE!
 
 ## Open Questions
 * is there a role for something a la live-cljs?

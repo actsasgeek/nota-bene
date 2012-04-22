@@ -17,15 +17,16 @@ function nota_bene_init() {
 function list_workbooks() {
     var workbook = $( '#workbook');
     workbook.empty();
+    workbook.append( $("<h1>Workbooks</h1>"));
     current_workbook = null; // TODO: if current_workbook is about to be overwritten, there should be a warning if it is dirty.
     var workbooks = fetch_workbooks_list();
     var ul = $("<ul></ul>");
     workbook.append( ul);
     for ( var i = 0; i < workbooks.length; i ++) {
-        var link = $("<a class='workbook' href='#'>" + workbooks[ i][ 'name'] + "</a>");
-        var id = workbooks[ i][ "id"];
+        var link = $("<a class='button' style='width: 50%; margin-bottom: 2px;' href='#' data-workbook_id='" +  workbooks[ i][ "id"] + "'>" + workbooks[ i][ 'name'] + "</a><br/ >");
         link.click( function(e) {
             e.preventDefault();
+            var id = e.target.dataset[ 'workbook_id'];
             load_workbook( id);
         });
         ul.append( link);
@@ -34,7 +35,8 @@ function list_workbooks() {
 
 function new_workbook() {
     clear_workbook();
-    current_workbook = create_new_workbook();  
+    current_workbook = create_new_workbook();
+    create_workbook_name();
 }
 
 function create_new_workbook() {
@@ -45,19 +47,42 @@ function create_new_workbook() {
     return result;
 }
 
+function create_workbook_name() {
+    var workbook_name = $( "<div id='workbook_name'></div>");
+    $( "#workbook").append( workbook_name);
+    workbook_name.html( current_workbook[ 'name']);
+    workbook_name.click( function( e) {
+        e.target.contentEditable = true;
+    });
+    workbook_name.blur( function( e) {
+        e.target.contentEditable = false;
+        current_workbook[ 'name'] = $( '#workbook_name').html();
+    });
+}
+
 function initialize_toolbar() {
     var toolbar = $( '#toolbar');
 
     // new wookbook
-    var button = $("<a href='#' title='Create a new workbook' class='button icon add'>New workbook</a><br />");
+    var button = $("<a href='#' title='Create a new workbook' class='button full-button icon add'>New workbook</a><br />");
     toolbar.append( button);
     button.click( function(e) {
         e.preventDefault();
         new_workbook();
     });
     
+    // list workbooks button.
+    button = $("<a href='#' title='List workbooks' class='button full-button icon arrowdown'>List workbooks</a><br />");
+    toolbar.append( button);
+    button.click( function(e) {
+        e.preventDefault();
+        list_workbooks();
+    });
+
+    toolbar.append( $( "<div style='width: 100%; height: 5px;'/>"));
+
     // save workbook button.
-    button = $("<a href='#' title='Save workbook' class='button icon arrowup'>Save workbook</a><br />");
+    button = $("<a href='#' title='Save workbook' class='button full-button icon arrowup'>Save workbook</a><br />");
     toolbar.append( button);
     button.click( function(e) {
         e.preventDefault();
@@ -69,18 +94,29 @@ function initialize_toolbar() {
         }
     });
 
-    // save workbook button.
-    button = $("<a href='#' title='List workbooks' class='button icon arrowdown'>List workbooks</a><br />");
+    toolbar.append( $( "<div style='width: 100%; height: 5px;'/>"));
+
+    // increase workbook fontsize
+    var button = $("<a href='#' title='Add new code cell' class='button half-button icon arrowup'>Font</a>");
     toolbar.append( button);
     button.click( function(e) {
         e.preventDefault();
-        list_workbooks();
+        change_workbook_fontsize( 1);
     });
+
+    // decrease workbook fontsize
+    var button = $("<a href='#' title='Add new code cell' class='button half-button icon arrowdown'>Font</a><br />");
+    toolbar.append( button);
+    button.click( function(e) {
+        e.preventDefault();
+        change_workbook_fontsize( -1);
+    });
+
 
     toolbar.append( $( "<div style='width: 100%; height: 5px;'/>"));
 
     // add new code cell.
-    var button = $("<a href='#' title='Add new code cell' class='button icon settings'>Add code</a><br />");
+    var button = $("<a href='#' title='Add new code cell' class='button full-button icon settings'>Add code</a><br />");
     toolbar.append( button);
     button.click( function(e) {
         e.preventDefault();
@@ -88,15 +124,15 @@ function initialize_toolbar() {
     });
     
     // new code text cell button.
-    button = $("<a href='#' title='Add new annotation cell' class='button icon comment'>Add annotation</a><br />");
+    button = $("<a href='#' title='Add new annotation cell' class='button full-button icon comment'>Add annotation</a><br />");
     toolbar.append( button);
     button.click( function(e) {
         e.preventDefault();
-        create_text_cell();
+        add_text_cell();
     });
 
     // new delete button.
-    button = $("<a href='#' title='Delete selected cell' class='button danger icon trash'>Delete selected cell</a><br />");
+    button = $("<a href='#' title='Delete selected cell' class='button full-button danger icon trash'>Delete selected cell</a><br />");
     toolbar.append( button);
     button.click( function(e) {
         e.preventDefault();
@@ -112,7 +148,7 @@ function initialize_toolbar() {
     toolbar.append( $( "<div style='width: 100%; height: 5px;'/>"));
 
     // clear output.
-    button = $("<a href='#' title='Clear output' class='button danger icon remove'>Clear output</a><br />");
+    button = $("<a href='#' title='Clear output' class='button full-button danger icon remove'>Clear output</a><br />");
     toolbar.append( button);
     button.click( function(e) {
         e.preventDefault();
@@ -120,7 +156,7 @@ function initialize_toolbar() {
     });
 
     // execute workbook.
-    button = $("<a href='#' title='Execute workbook' class='button icon reload'>Execute workbook</a><br />");
+    button = $("<a href='#' title='Execute workbook' class='button full-button icon reload'>Execute workbook</a><br />");
     toolbar.append( button);
     button.click( function(e) {
         e.preventDefault();
@@ -129,6 +165,24 @@ function initialize_toolbar() {
 
     toolbar.append( $("<p style='font-family: Arial, Helvetica, sans-serif; font-size: 8pt;'>Shift-Enter executes code.</p>"));
     toolbar.append($( "<div style='text-align: center; width: 100%; padding-top: 25px;'><table width='100%'><tr><td><img src='img/clojure.png'/><br /><img src='img/duke.jpeg'/></td><td><img src='img/lisplogo_warning.png'/></td></tr></table></div>"));
+}
+
+function change_workbook_fontsize( change) {
+    var workbook = $( '#workbook');
+
+    var current_font_size = parseInt( workbook.css( 'font-size'));
+    workbook.css( 'font-size', current_font_size + change);
+
+    var code_cells = $( '.code-cell');
+    for ( var i = 0; i < code_cells.length; i ++) {
+        change_fontsize( code_cells[ i], change);
+    }
+}
+
+function change_fontsize( item, change) {
+    var item = $( item);
+    var current_font_size = parseInt( item.css( 'font-size'));
+    item.css( 'font-size', current_font_size + change);
 }
 
 function code_cell_html( id) {
@@ -180,6 +234,20 @@ function make_cell_active( id, type, current_cell) {
     $('#cell-' + id).removeClass( "inactive-cell").addClass( "active-cell");
 }
 
+function extract_cell_id( cell) {
+    var id = cell.id;
+    id = id.substring( id.indexOf( "-") + 1, id.length);
+    return id;
+}
+
+function add_text_cell() {
+    var cell = create_text_cell()[ 0];
+    var id = extract_cell_id( cell);
+    var editor = extract_editor_from_cell( cell);
+    editor.focus();
+    make_cell_active( id, "text", cell);
+}
+
 function create_text_cell() {
     var id = make_new_cell_id( current_workbook)
 
@@ -198,8 +266,6 @@ function create_text_cell() {
         }
     });
     textarea[ 'editor'] = editor;
-    make_cell_active( id, "text", this);
-    editor.focus();
     return cell;
 }
 
@@ -319,6 +385,7 @@ function load_workbook( id) {
         }
     });
     deserialize_workbook( result);
+    $( "#workbook").click();
 }
 
 function fetch_workbooks_list() {
@@ -362,6 +429,7 @@ function serialize_workbook( workbook) {
         serialized_cell[ 'content'] = extract_editor_from_cell( cells[ i]).getValue();
         content.push( serialized_cell);
     }
+    workbook[ 'name'] = $("#workbook_name").html();
     workbook[ 'content'] = content;
     return workbook;
 }
@@ -373,6 +441,7 @@ function clear_workbook() {
 function deserialize_workbook( workbook) {
     clear_workbook();
     current_workbook = workbook;
+    create_workbook_name();
     workbook[ 'cell_number'] = 0;
     var content = workbook[ 'content'];
     for ( var i = 0; i < content.length; i ++) {
@@ -381,11 +450,15 @@ function deserialize_workbook( workbook) {
         var cell_content = cell.content;
         if ( cell_type == 'code') {
             cell = create_code_cell();
+            var editor = extract_editor_from_cell( cell);
+            editor.setValue( cell_content);
         } else {
             cell = create_text_cell();
+            var id = extract_cell_id( cell[ 0]);
+            var editor = extract_editor_from_cell( cell);
+            editor.setValue( cell_content);
+            save_text_cell( id);
         }
-        var editor = extract_editor_from_cell( cell);
-        editor.setValue( cell_content);
         $( editor).blur();
     }
     return workbook;

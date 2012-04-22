@@ -27,7 +27,6 @@ p {
 } 
 
 #toolbar { 
-	border: 1px dotted black;
 	z-index: 99; 
 	height: 100%; 
 	padding: 10px; 
