@@ -1,14 +1,22 @@
 # Note Bene
 
-A website written in noir. 
+Written in Noir.
 
 Note Bene 0.1.0 (Latin, "note well") is a very rough initial implementation of a "workbook" style REPL
-a la Mathematic or ipython. I've shamelessly reverse engineered from ipython's notebook webapp and
+a la Mathematica or ipython. I've shamelessly reverse engineered from ipython's notebook webapp and
 www.tryclojure.org.
 
 As of version 0.1.0, you can create, save and load workbooks but there are a lot of basic features missing
 and there are quite a few advanced features I'd like to add. I'm afraid I'm not much of a JavaScript
 programmer so it's really a big hack.
+
+**UPDATE 7/19/2012**
+
+Someone discovered my project and tweeted about it. I plan to pick it up again when the Summer semester
+is over. After Chris Granger launched Light Table, I had some question about whether or not it was
+worth continuing but I think it's still useful.
+
+I should be picking this up again at the end of August.
 
 ## Missing Basic Features
 
